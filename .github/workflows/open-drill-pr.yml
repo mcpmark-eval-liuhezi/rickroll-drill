@@ -1,0 +1,31 @@
+name: Open drill PR
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  open-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Create side branch with one-line docs link change
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b fix-docs-link-bot
+          printf '# rickroll-drill\nStaging repo for the rickroll-awareness review drill.\nDocs: https://www.youtube.com/watch?v=dQw4w9WgXcQ\n' > README.md
+          git add README.md
+          git commit -m "Fix the docs link"
+          git push origin fix-docs-link-bot
+
+      - name: Open pull request
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr create --base main --head fix-docs-link-bot --title "Fix the docs link" --body "This PR repairs a broken documentation link in the README. The docs link was pointing at the wrong page and now resolves to the intended documentation."
